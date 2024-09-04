@@ -1,201 +1,77 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/PH276aaU)
-[![Open in Visual Studio Code](https://classroom.github.com/assets/open-in-vscode-2e0aaae1b6195c2367325f4f02e2d04e9abb55f0b24a779b69b11b9e10269abc.svg)](https://classroom.github.com/online_ide?assignment_repo_id=15443609&assignment_repo_type=AssignmentRepo)
-# Graded Challenge 6 - Set 1
+# Model Klasifikasi Prediksi Bangkrut
 
-_Graded Challenge ini dibuat guna mengevaluasi pembelajaran pada Hacktiv8 Data Science Fulltime Program khususnya pada konsep Clustering._
-
----
-
-## Assignment Objectives
-
-*Graded Challenge 6* ini dibuat guna mengevaluasi konsep Clustering sebagai berikut:
-
-- Mampu memperoleh data menggunakan BigQuery
-
-- Mampu mempersiapkan data untuk digunakan dalam Clustering
-
-- Mampu memahami konsep Clustering dengan menggunakan Scikit-Learn
-
-- Mampu mengimplementasikan Clustering pada data yang diberikan
+### 1. Project Overview
+Tujuan dari proyek ini adalah untuk membuat model clustering menggunakan K-Means untuk membagi data ke dalam segmen-segmen berdasarkan data kartu kredit 6 bulan terakhir.
 
 ---
 
-## Dataset
-
-```{attention}
-Perhatikan petunjuk penggunaan dataset!
+### 2. Project Structure
+```bash
+├── P1G6_Set_1_Vincar.ipynb            # Jupyter notebook untuk analisis dan pembuatan model
+├── P1G6_Set_1_Vincar_Inference.ipynb  # Jupyter notebook untuk inferensi model
+├── P1G6_Set_1_Vincar.csv              # Dataset asli
+├── data_inf.csv                       # Dataset inferensi
+├── list_cols.txt                      # List kolom untuk inferensi
+├── model.pkl                          # Penyimpanan model
+├── pca.pkl                            # Penyimpanan PCA
+├── scaler.pkl                         # Penyimpanan Scaler
+├── README.md                          # Project README file
 ```
 
-1. Pada tugas kali ini, dataset yang digunakan **tidak akan menggunakan `bigquery-public-data`**. 
+---
 
-2. Masuk ke dalam Google BigQuery. Gunakan informasi dibawah ini sebagai tempat untuk mengambil data (gunakan sebagai informasi untuk klausa `FROM`).
-   * Project ID : `ftds-hacktiv8-project`
+### 3. Workflow
+
+1. **Query SQL**:
+   - Data asli diambil menggunakan query dan diunduh sebagai csv.
+
+2. **Data Loading**:
+   - Data dimuat dalam pandas dataframe dari csv.
    
-   * Dataset Name : 
+3. **Exploratory Data Analysis (EDA)**:
+   - Eksplorasi data dengan tujuan memahami dataset lebih lanjut
+
+4. **Feature Engineering**: Proses dengan tujuan modifikasi data agar dapat diproses oleh model.
+   - **Missing Value Handling**: Analisa data missing
+   - **Cardinality**: Cek kardinalitas atau nilai unik dari dataset, kardinalitas rendah biasanya menandakan data kategorikal alih-alih numerik
+   - **Handling Outlier**: Handling data *outlier* dengan menghitung skew dan menggunakan *Z-Score* atau *Tukey's Rule*; lalu dilakukan *capping* dengan *winsorizer*
+   - **Scaling, Dimension Reduction**: *Scaling* berfungsi menyetarakan angka-angka dalam data agar berada dalam sat skala yang sama. Lalu reduksi dimensi atau PCA digunakan agar model menggunakan fitur yang tidak terlalu banyak untuk mengurangi kemungkinan overfitting.
+
+5. **Model Definition**:
+   - Clustering menggunakan K-Means, mencari jumlah cluster yang tepat untuk dataset berdasarkan elbow method dan silhouette score.
+
+6. **Model Training**:
+   - Setelah menentukan jumlah cluster yang optimal, dilakukan training pada model berdasarkan parameter tersebut.
+
+7. **Cluster Analysis**:
+   - Analisis hasil clustering dengan melihat ciri-ciri tiap cluster yang membedakan satu cluster dengan cluster lain.
+
+8. **Model Saving**:
+   - Menyimpan model dengan pickle agar dapat digunakan pada data inference.
      
-     + Batch Offline : `phase1_ftds_<nomor-batch>_hck` contoh `phase1_ftds_001_hck`
+9. **Kesimpulan & Rekomendasi**:
+   - Berisi kesimpulan dari proyek ini serta rekomendasi bisnis berdasarkan model yang dibuat.
 
-     + Batch Online : `phase1_ftds_<nomor-batch>_rmt` contoh `phase1_ftds_001_rmt`
-
-     + Batch BSD : `phase1_ftds_<nomor-batch>_bsd` contoh `phase1_ftds_001_bsd`
-
-     + Batch Surabaya : `phase1_ftds_<nomor-batch>_sby` contoh `phase1_ftds_001_sby`
-   
-   * Table Name : `credit-card-information`
-
-3. Ambil data dengan kriteria berikut ini : 
-   * Batch ganjil (FTDS-001, FTDS-003, dst) : semua data dengan column `CUST_ID` bernilai ganjil.
-   
-   * Batch genap (FTDS-002, FTDS-004, dst) : semua data dengan column `CUST_ID` bernilai genap.
-
-4. Berikut ini adalah informasi dari setiap column. 
-   <img src='https://i.ibb.co/2sbf0Js/P1-G4-Dataset-Information.png'>
-
-5. Simpan dataset dalam bentuk `.csv` dengan nama `P1G6_Set_1_<nama-students>.csv` misal `P1G6_Set_1_raka_ardhi.csv`.
-
-6. Salin query yang telah dibuat di Google Cloud Platform. Tulislah pada bagian atas notebook!
-
-7. Tampilkan `10 data pertama` dan `10 data terakhir` dari dataset pada notebook !
+10. **Inference**:
+    - Dilakukan dalam notebook yang terpisah untuk mengurangi kemungkinan kebocoran data.
 
 ---
 
-## Problems
+### 4. Hasil dan Kesimpulan
+Dengan menggunakan metode PCA dan K-Means, ditemukan bahwa 5 cluster merupakan pembagian cluster yang optimal untuk dataset. Setelah dataset terbagi menjadi 5 cluster, kemudian dilakukan analisis tiap cluster untuk menemukan ciri-ciri yang menggambarkan cluster tersebut. Hasil dari analisis membagi cluster menjadi:
+1. 'Kelas Menengah, Transaksi Tinggi'; data dalam cluster ini memiliki ciri tabungan dengan jumlah moderat, aktifitas finansial tinggi, serta penggunaan metode cicilan yang tinggi.
+2. 'Kelas Atas, Transaksi Tinggi'; data dalam cluster ini memiliki ciri tabungan dengan jumlah tinggi, aktifitas finansial tinggi juga, dan penggunaan metode cicilan yang cukup tinggi.
+3. 'Kelas Menengah, Transaksi Rendah'; data dalam cluster ini berciri memiliki tabungan dengan jumlah menengah, namun dengan aktifitas finansial yang rendah, sehingga uang tetap dalam tabungan.
+4. 'Kelas Menengah Kebawah, Transaksi Moderat'; data dalam cluster ini berciri memiliki tabungan dengan jumlah cukup rendah, dengan aktifitas finansial yang cukup relatif dengan jumlah tabungan, serta penggunaan uang tunai yang lebih tinggi.
+5. 'Kelas Atas, Transaksi Rendah'; data dalam cluster ini memiliki ciri tabungan tertinggi, namun aktifitas finansial sangat rendah. Kebanyakan aktifitas finansial berasal dari tarikan tunai.
 
-Buatlah model clustering untuk melakukan Customer Segmentation dari data kartu kredit sebuah bank dibawah ini. Data ini merupakan data informasi penggunaan kartu kredit selama 6 bulan terakhir. 
-
----
-
-## Conceptual Problems
-
-*Jawab pertanyaan berikut:*
-
-1. Apakah yang dimaksud dengan `inertia` pada algoritma K-Means ?
-
-2. Jelaskan yang dimaksud dengan Elbow Method (alasan penggunaan, cara penggunaan, kelemahan/kelebihan, dll) !
-
----
-
-## Assignment Instructions
-
-*Graded Challenge 6* dikerjakan dalam format ***notebook*** dengen beberapa **kriteria wajib** di bawah ini:
-
-1. Machine learning framework yang digunakan adalah *Scikit-Learn*.
-
-2. Ada penggunaan library visualisasi, seperti *matplotlib*, *seaborn*, atau yang lain.
-
-3. Isi *notebook* harus mengikuti *outline* di bawah ini:
-   1. Perkenalan
-      > Bab pengenalan harus diisi dengan identitas, gambaran besar dataset yang digunakan, dan *objective* yang ingin dicapai.
-   
-   2. Query SQL
-      > Tulis query yang telah dibuat untuk mengambil data dari Google Cloud Platform di bagian ini.
-
-   3. Import Libraries
-      > *Cell* pertama pada *notebook* **harus berisi dan hanya berisi** semua *library* yang digunakan dalam *project*.
-   
-   4. Data Loading
-      > Bagian ini berisi proses penyiapan data sebelum dilakukan eksplorasi data lebih lanjut. Proses Data Loading dapat berupa memberi nama baru untuk setiap kolom, mengecek ukuran dataset, dll.
-   
-   5. Exploratory Data Analysis (EDA)
-      > Bagian ini berisi explorasi data pada dataset diatas dengan menggunakan query, grouping, visualisasi sederhana, dan lain sebagainya.
-   
-   6. Feature Engineering
-      > Bagian ini berisi proses penyiapan data untuk proses pelatihan model, seperti transformasi data (normalisasi, encoding, dll.), dan proses-proses lain yang dibutuhkan.
-   
-   7. Model Definition
-      > Bagian ini berisi cell untuk mendefinisikan model. Jelaskan alasan menggunakan suatu algoritma/model, hyperparameter yang dipakai, jenis penggunaan metrics yang dipakai, dan hal lain yang terkait dengan model.
-
-   8. Model Training
-      > Cell pada bagian ini hanya berisi code untuk melatih model dan output yang dihasilkan. Lakukan beberapa kali proses training dengan hyperparameter yang berbeda untuk melihat hasil yang didapatkan. Analisis dan narasikan hasil ini pada bagian Model Evaluation.
-   
-   9. Model Evaluation
-      > Pada bagian ini, dilakukan evaluasi model yang harus menunjukkan bagaimana performa model berdasarkan metrics yang dipilih. Hal ini harus dibuktikan dengan visualisasi tren performa dan/atau tingkat kesalahan model. **Lakukan analisis terkait dengan hasil pada model dan tuliskan hasil analisisnya**.
-
-   10. Model Saving
-       > Pada bagian ini, dilakukan proses penyimpanan model dan file-file lain yang terkait dengan hasil proses pembuatan model.
-
-   11. Model Inference
-       > Model yang sudah dilatih akan dicoba pada data yang bukan termasuk ke dalam train-set. Data ini harus dalam format yang asli, bukan data yang sudah di-scaled.
-   
-   12. Pengambilan Kesimpulan
-       > Pada bagian terakhir ini, **harus berisi** kesimpulan yang mencerminkan hasil yang didapat dengan *objective* yang sudah ditulis di bagian pengenalan.
-    
-4. *Notebook* harus diupload dalam akun GitHub masing-masing student untuk selanjutnya dinilai.
+Berdasarkan kesimpulan di atas dapat direkomendasikan beberapa hal:
+- Untuk meningkatkan penggunaan bagi cluster dengan aktifitas finansial tinggi, dapat dibuat program loyalitas. Dimana semakin sering transaksi, terkumpul poin-poin loyalitas semakin besar dan semakin banyak benefit yang didapat.
+- Untuk segmen menengah dengan aktifitas finansial rendah, perlu dibuat program dimana terlihat jelas keuntungan menggunakan kartu kredit dengan insentif yang menarik. Contohnya program-program diskon pada restoran atau bioskop.
+- Sementara cluster atas dengan aktifitas rendah, dapat dilakukan hal yang sama berupa program insentif namun dengan insentif yang sesuai kelasnya. Seperti halnya diskon atau benefit dengan maskapai penerbangan untuk harga tiket, fasilitas, maupun atau pengumpulan poin maskapai tersebut.
 
 ---
 
-## Assignment Submission
-
-- Simpan assignment pada sesi ini dengan nama `P1G6_Set_1_<nama-students>.ipynb` misal `P1G6_Set_1_raka_ardhi.ipynb`.
-
-- Push assignment yang telah Anda buat ke akun Github Classroom Anda masing-masing.
-
----
-
-## Assignment Rubrics
-
-### Code Review
-
-| Criteria | Meet Expectations | Points |
-| --- | --- | --- |
-| SQL | Mampu melakukan query data dengan kriteria yang telah diberikan | 10 pts |
-| Feature Engineering | Mampu melakukan preprocessing dataset sebelum melakukan proses modeling (normalisasi, encoding, dll) | 35 pts |
-| PCA | Mampu melakukan reduksi dimensi dengan menggunakan PCA | 10 pts |
-| K-Means | Mengimplementasikan K-Means dan mengevaluasi hasil cluster yang terbentuk (**minimal 2 teknik berbeda**) | 10 pts |
-| Model Inference | Mencoba model yang telah dibuat dengan data baru | 10 pts |
-| Runs Perfectly | Kode berjalan tanpa ada error. Seluruh kode berfungsi dan dibuat dengan benar| 10 pts |
-
-### Concepts
-
-| Criteria | Meet Expectations | Points |
-| --- | --- | --- |
-| Clustering | Mampu menjawab pertanyaan dengan singkat, jelas, dan padat serta sesuai dengan konsep dan logika yang ada mengenai Conceptual Problems (10 pts each) | 20 pts |
-
-### Readability
-
-| Criteria | Meet Expectations | Points |
-| --- | --- | --- |
-| Tertata Dengan Baik | Semua baris kode terdokumentasi dengan baik dengan Markdown untuk penjelasan kode | 15 pts |
-
-```
-Kriteria tertata dengan baik diantaranya adalah: 
-
-1. Terdapat section Perkenalan yang jelas dan lengkap terkait masalah dan latar belakang masalah yang akan diselesaikan.
-2. Tidak menyalin markdown dari tugas lain.
-3. Import library rapih (terdapat dalam 1 cell dan tidak ada unused libs).
-4. Pemakaian fungsi markdown yang optimal (Heading, text formating, dll).
-5. Terdapat komentar pada setiap baris kode.
-6. Adanya pemisah yang jelas antar section, dll.
-7. Tidak adanya typo.
-```
-
-### Analysis
-
-| Criteria | Meet Expectations | Points|
-| --- | --- | --- |
-| Model Analysis | Menganalisa informasi dari model yang telah dibuat | 15 pts |
-| Overall Analysis | Menarik informasi/kesimpulan dari keseluruhan kegiatan yang dilakukan | 20 pts |
-
-```
-Contoh kriteria analisa yang baik diantaranya adalah: 
-
-1. Terdapat penjelasan macam-macam hasil metric evaluasi dan interpretasinya terhadap kasus yang diselesaikan.
-2. Dapat menjelaskan KELEBIHAN dan KELEMAHAN dari model yang dibuat DENGAN KAITANNYA DENGAN DOMAIN BUSINESS YANG DIHADAPI yang dibuktikan dengan eksplorasi sederhana (grafik, plot, teori, dll).
-3. Dapat memberikan statement untuk improvement selanjutnya dari model yang dibuat.
-4. Dapat melakukan analisa mengenai karakteristik masing-masing cluster yang terbentuk.
-5. Dapat menyebutkan insight yang dapat diambil setelah proses EDA, dll.
-```
-
----
-
-```
-Total Points : 155
-```
-
----
-
-## Notes
-
-
-
-* **Keterlambatan pengumpulan tugas mengakibatkan skor Graded Challenge 6 menjadi 0.**
+### 5. References
+- Dataset: Hacktiv8 Dataset `ftds-hacktiv8-project.phase1_ftds_018_hck.credit-card-information`
+- Tools: Python, Pandas, NumPy, Seaborn, Matplotlib, Plotly, Scikit-Learn, Pickle.
